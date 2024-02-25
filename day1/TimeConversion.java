@@ -33,18 +33,15 @@ class TimeConversionResult {
             convertedTime = s.replaceFirst("PM", "");
 
         } else {
-            String hoursString = s.substring(0, 2);
-            int hours12Format = Integer.parseInt(hoursString);
-            int hours24Format = 12 + hours12Format;
-            String hours24FormatString = "";
-            if (hours24Format < 10) {
-                hours24FormatString = "0" + String.valueOf(hours24Format);
+            try {
+                SimpleDateFormat inputFormat = new SimpleDateFormat("hh:mm:ssa");
+                Date inputDate = inputFormat.parse(s);
+                SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss");
+                convertedTime = outputFormat.format(inputDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
 
-            } else {
-                hours24FormatString = String.valueOf(hours24Format);
             }
-            convertedTime = hours24FormatString + s.substring(2, 8);
-
         }
         return convertedTime;
     }

@@ -12,23 +12,23 @@ class PairsResult {
      *
      * The function is expected to return an INTEGER.
      * The function accepts following parameters:
-     *  1. INTEGER k
-     *  2. INTEGER_ARRAY arr
+     * 1. INTEGER k
+     * 2. INTEGER_ARRAY arr
      */
 
     public static int pairs(int k, List<Integer> arr) {
-    // Write your code here
+        // Write your code here
         Collections.sort(arr);
-        
+
         int i = 0, j = 1, count = 0;
-        
+
         while (j < arr.size()) {
-            if (i == j && j < arr.size()-1) {
+            if (i == j && j < arr.size() - 1) {
                 j++;
             }
-            
+
             int diff = arr.get(j) - arr.get(i);
-            
+
             if (diff == k) {
                 count++;
                 j++;
@@ -38,7 +38,7 @@ class PairsResult {
                 j++;
             }
         }
-        
+
         return count;
 
     }
@@ -52,13 +52,13 @@ public class Pairs {
 
         String[] firstMultipleInput = bufferedReader.readLine().replaceAll("\\s+$", "").split(" ");
 
-        int n = Integer.parseInt(firstMultipleInput[0]);
+        // int n = Integer.parseInt(firstMultipleInput[0]);
 
         int k = Integer.parseInt(firstMultipleInput[1]);
 
         List<Integer> arr = Stream.of(bufferedReader.readLine().replaceAll("\\s+$", "").split(" "))
-            .map(Integer::parseInt)
-            .collect(toList());
+                .map(Integer::parseInt)
+                .collect(toList());
 
         int result = PairsResult.pairs(k, arr);
 
@@ -69,4 +69,3 @@ public class Pairs {
         bufferedWriter.close();
     }
 }
-

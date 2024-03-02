@@ -1,7 +1,16 @@
 package day6;
 
 import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
 import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 class LegoBlocksResult {
     /*
@@ -13,68 +22,74 @@ class LegoBlocksResult {
      * 2. INTEGER m - width
      */
 
-    static long MOD = 1000000000 + 7;
-
-    static long getResult(long[] total, long[] result, int i) {
-        if (result[i] == -1) {
-            if (i == 1) {
-                result[i] = 1;
-            } else {
-                result[i] = total[i];
-                for (int j = 1; j < i; j++) {
-                    result[i] -= (getResult(total, result, j) * total[i - j]) % MOD;
-                }
-            }
-        }
-        return result[i];
-    }
-
-    static long fillTotal(long[] total, int i) {
-        if (i < 0)
-            return 0;
-
-        if (total[i] == -1) {
-            if (i == 0 || i == 1)
-                total[i] = 1;
-            else
-                total[i] = (fillTotal(total, i - 1) + fillTotal(total, i - 2) + fillTotal(total, i - 3)
-                        + fillTotal(total, i - 4)) % MOD;
-        }
-
-        return total[i];
-    }
-
-    public static int legoBlocks(int n, int m) {
-        // Write your code here
-        if (n < 2 || m < 1)
-            return 0;
-        if (m == 1)
-            return 1;
-
-        long[] total = new long[m + 1];
-
-        for (int i = 0; i < total.length; i++)
-            total[i] = -1;
-
-        fillTotal(total, m);
-
-        for (int i = 0; i < total.length; i++) {
-            long tmp = 1;
-            for (int j = 0; j < n; j++) {
-                tmp = (tmp * total[i]) % MOD;
-            }
-            total[i] = tmp;
-        }
-
-        long[] result = new long[m + 1];
-
-        for (int i = 0; i < result.length; i++)
-            result[i] = -1;
-
-        getResult(total, result, m);
-
-        return (int) (result[m] % MOD);
-    }
+     private static final int MOD = 1000000007; // 10^9+7
+     private static final int MAX_SIZE = 1000 + 1; // 1 <= n, m <= 1000
+     private static final int UNKNOWN = -1;
+   
+     static int[][] allSolutions = new int[MAX_SIZE][MAX_SIZE];
+     static int[][] solidSolutions = new int[MAX_SIZE][MAX_SIZE];
+   
+     static {
+       for (int i = 1; i < MAX_SIZE; i++) {
+         Arrays.fill(allSolutions[i], UNKNOWN);
+         Arrays.fill(solidSolutions[i], UNKNOWN);
+       }
+     }
+   
+     static int getAllSolutions(final int height, final int width) {
+       if (allSolutions[height][width] != UNKNOWN) {
+         return allSolutions[height][width];
+       }
+   
+       long count;
+       if (width == 1) {
+         count = 1;
+       } else if (height == 1) {
+         if (width <= 4) {
+           count = 2 * getAllSolutions(1, width - 1);
+         } else { // width > 4
+           count = 0;
+           for (int i = 1; i <= 4; i++) {
+             count += getAllSolutions(1, width - i);
+             count %= MOD;
+           }
+         }
+       } else { // width > 1 && height > 1
+         int oneRowSolutions = getAllSolutions(1, width);
+   
+         count = 1;
+         for (int h = 0; h < height; h++) {
+           count *= oneRowSolutions;
+           count %= MOD;
+         }
+       }
+   
+       allSolutions[height][width] = (int) count;
+       return allSolutions[height][width];
+     }
+   
+     static int legoBlocks(final int height, final int width) {
+       if (solidSolutions[height][width] != UNKNOWN) {
+         return solidSolutions[height][width];
+       }
+   
+       long count;
+       if (width == 1) {
+         count = 1;
+       } else {
+         count = getAllSolutions(height, width);
+         for (int i = 1; i < width; i++) {
+           long a = getAllSolutions(height, i);
+           long b = legoBlocks(height, width - i);
+           count -= (a * b) % MOD;
+           if (count < 0) {
+             count += MOD;
+           }
+         }
+       }
+       solidSolutions[height][width] = (int) count;
+       return solidSolutions[height][width];
+     }
 
 }
 
